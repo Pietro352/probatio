@@ -17,6 +17,7 @@
   --scritto: #C2632B;
   --orale: #3E6B5C;
   --pratico: #3B5A8A;
+  --altro: #9A948E;
   --radius: 14px;
   --shadow: 0 1px 2px rgba(42,37,35,.06), 0 8px 24px rgba(42,37,35,.05);
 }
@@ -221,6 +222,7 @@ html, body {
 .dot.scritto { background: var(--scritto); }
 .dot.orale { background: var(--orale); }
 .dot.pratico { background: var(--pratico); }
+.dot.altro { background: var(--altro); }
 
 /* ---------- Modal ---------- */
 
@@ -483,7 +485,7 @@ const COL = CFG.collections;
 
 const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const GIORNI = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
-const TIPI = { scritto: "Scritto", orale: "Orale", pratico: "Pratico" };
+const TIPI = { scritto: "Scritto", orale: "Orale", pratico: "Pratico", altro: "Altro" };
 const VOTI_POSSIBILI = [];
 for (let v = 4; v <= 10; v += 0.25) VOTI_POSSIBILI.push(Math.round(v * 100) / 100);
 
@@ -573,6 +575,7 @@ async function render() {
     <span><span class="dot scritto"></span>Scritto</span>
     <span><span class="dot orale"></span>Orale</span>
     <span><span class="dot pratico"></span>Pratico</span>
+    <span><span class="dot altro"></span>Altro</span>
   `;
   calCard.appendChild(legend);
   root.appendChild(calCard);
@@ -974,6 +977,7 @@ function apriModalNuovaVerifica(dateStr, verificaEsistente) {
       <button type="button" data-tipo="scritto" class="${tipo === "scritto" ? "active" : ""}">Scritto</button>
       <button type="button" data-tipo="orale" class="${tipo === "orale" ? "active" : ""}">Orale</button>
       <button type="button" data-tipo="pratico" class="${tipo === "pratico" ? "active" : ""}">Pratico</button>
+      <button type="button" data-tipo="altro" class="${tipo === "altro" ? "active" : ""}">Altro</button>
     </div>
     <label>Materia</label>
     <input type="text" id="materia" placeholder="es. Matematica" value="${isEdit ? escapeHtml(verificaEsistente.materia) : ""}" />
