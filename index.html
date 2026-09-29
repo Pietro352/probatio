@@ -1043,9 +1043,16 @@ async function apriModalDettaglio(dateStr, verifiche) {
   modal.innerHTML = closeBtnHtml() + `
     <h3>${dataLeggibile(dateStr)}</h3>
     <div id="lista-verifiche"></div>
+    ${state.isAdmin ? `<div class="row"><button class="btn" id="aggiungi-altra" style="width:100%">+ Aggiungi verifica</button></div>` : ""}
   `;
   bindClose(overlay, modal);
   const lista = modal.querySelector("#lista-verifiche");
+  if (state.isAdmin) {
+    modal.querySelector("#aggiungi-altra").addEventListener("click", () => {
+      closeModal(overlay);
+      apriModalNuovaVerifica(dateStr);
+    });
+  }
 
   for (const v of verifiche) {
     const block = el("div", "detail-block");
