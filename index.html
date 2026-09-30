@@ -972,6 +972,7 @@ function apriModalNuovaVerifica(dateStr, verificaEsistente) {
   const { overlay, modal } = baseModal();
   const isEdit = !!verificaEsistente;
   let tipo = isEdit ? verificaEsistente.tipo : "scritto";
+  let conVoto = isEdit ? verificaEsistente.conVoto !== false : true;
 
   modal.innerHTML = closeBtnHtml() + `
     <h3>${isEdit ? "Modifica verifica" : "Aggiungi verifica"}</h3>
@@ -982,6 +983,11 @@ function apriModalNuovaVerifica(dateStr, verificaEsistente) {
       <button type="button" data-tipo="orale" class="${tipo === "orale" ? "active" : ""}">Orale</button>
       <button type="button" data-tipo="pratico" class="${tipo === "pratico" ? "active" : ""}">Pratico</button>
       <button type="button" data-tipo="altro" class="${tipo === "altro" ? "active" : ""}">Altro</button>
+    </div>
+    <label>Voto</label>
+    <div class="seg" id="voto-seg">
+      <button type="button" data-voto="1" class="${conVoto ? "active" : ""}">Con voto</button>
+      <button type="button" data-voto="0" class="${!conVoto ? "active" : ""}">Senza voto</button>
     </div>
     <label>Materia</label>
     <input type="text" id="materia" placeholder="es. Matematica" value="${isEdit ? escapeHtml(verificaEsistente.materia) : ""}" />
@@ -1000,6 +1006,12 @@ function apriModalNuovaVerifica(dateStr, verificaEsistente) {
       modal.querySelectorAll("#tipo-seg button").forEach(x => x.classList.toggle("active", x.dataset.tipo === tipo));
     });
   });
+  modal.querySelectorAll("#voto-seg button").forEach(b => {
+    b.addEventListener("click", () => {
+      conVoto = b.dataset.voto === "1";
+      modal.querySelectorAll("#voto-seg button").forEach(x => x.classList.toggle("active", (x.dataset.voto === "1") === conVoto));
+    });
+  });
   modal.querySelector("#annulla-btn").addEventListener("click", () => closeModal(overlay));
   modal.querySelector("#salva-btn").addEventListener("click", async () => {
     const materia = modal.querySelector("#materia").value.trim();
@@ -1008,10 +1020,10 @@ function apriModalNuovaVerifica(dateStr, verificaEsistente) {
     if (!materia) { err.textContent = "Inserisci la materia."; err.style.display = ""; return; }
     try {
       if (isEdit) {
-        await db.updateDocument(CFG.databaseId, COL.verifiche, verificaEsistente.$id, { tipo, materia, descrizione });
+        await db.updateDocument(CFG.databaseId, COL.verifiche, verificaEsistente.$id, { tipo, materia, descrizione, conVoto });
       } else {
         await db.createDocument(CFG.databaseId, COL.verifiche, ID.unique(), {
-          classeId: state.classeId, data: dateStr, tipo, materia, descrizione
+          classeId: state.classeId, data: dateStr, tipo, materia, descrizione, conVoto
         });
       }
       closeModal(overlay);
@@ -1088,6 +1100,10 @@ async function apriModalDettaglio(dateStr, verifiche) {
     }
 
     const fbBox = block.querySelector(`#fb-${v.$id}`);
+    if (v.conVoto === false) {
+      fbBox.innerHTML = `<p class="hint">Questa verifica non prevede voto.</p>`;
+      continue;
+    }
     if (!feedbackDisponibile(dateStr)) {
       fbBox.innerHTML = `<p class="hint">Il feedback sarà disponibile dopo le 13:00 del giorno della verifica.</p>`;
       continue;
