@@ -463,11 +463,9 @@ window.APPWRITE_CONFIG = {
 };
 
 // Configurazione micro-AI (riepilogo verifiche via Groq).
-// ATTENZIONE: questo file gira su GitHub Pages (statico), quindi la chiave
-// qui sotto è visibile a chiunque apra il sorgente della pagina.
-// Usa una chiave dedicata a questo progetto con permessi/limiti minimi.
+// La chiave Groq NON sta nel sito: le richieste passano dal gateway Cloudflare (repo api-gateway).
 window.GROQ_CONFIG = {
-  apiKey: "__GROQ_API_KEY__", // placeholder: sostituito dal workflow GitHub Actions al deploy
+  endpoint: "https://pietro-gateway.pietrobertino.workers.dev/groq/openai/v1/chat/completions",
   model: "openai/gpt-oss-20b"
 };
 </script>
@@ -773,12 +771,6 @@ async function inviaMessaggioChatAI(domanda) {
   if (chatAI.inviando) return;
   aggiungiMessaggioChatAI("utente", domanda);
 
-  const chiave = window.GROQ_CONFIG?.apiKey || "";
-  if (!chiave || chiave.startsWith("__GROQ")) {
-    aggiungiMessaggioChatAI("assistente", "L'assistente non è ancora configurato: manca la chiave AI.");
-    return;
-  }
-
   chatAI.inviando = true;
   const sendBtn = document.getElementById("ai-chat-send");
   if (sendBtn) sendBtn.disabled = true;
@@ -829,11 +821,10 @@ async function chiediGroqChat(domanda, verifiche) {
     .slice(-8)
     .map(m => ({ role: m.ruolo === "utente" ? "user" : "assistant", content: m.testo }));
 
-  const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  const resp = await fetch(window.GROQ_CONFIG.endpoint, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${window.GROQ_CONFIG.apiKey}`
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       model: window.GROQ_CONFIG.model,

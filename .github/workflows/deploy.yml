@@ -24,17 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inietta Groq API key
-        env:
-          GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: |
-          if [ -z "$GROQ_KEY" ]; then
-            echo "⚠️  Secret GROQ_API_KEY non configurato: AI disabilitata"
-          else
-            sed -i "s|__GROQ_API_KEY__|$GROQ_KEY|g" index.html
-            echo "✓ API key Groq iniettata nel file index.html"
-          fi
-
       - name: Configura GitHub Pages
         uses: actions/configure-pages@v5
 
